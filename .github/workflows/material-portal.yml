@@ -54,6 +54,61 @@ jobs:
       - name: Verify portal output
         run: python tests/verify_material_portal.py bld/material-portal
 
+      - name: Exercise workspace in a real browser
+        shell: bash
+        run: |
+          python -m http.server 8765 \
+            --bind 127.0.0.1 \
+            --directory bld/material-portal/site \
+            > bld/material-portal/browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          python - <<'PY'
+          import time
+          import urllib.request
+
+          url = "http://127.0.0.1:8765/explorer/"
+          for _ in range(20):
+              try:
+                  urllib.request.urlopen(url, timeout=1).read(1)
+                  break
+              except Exception:
+                  time.sleep(0.25)
+          else:
+              raise SystemExit("portal preview server did not become ready")
+          PY
+
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$chrome" ]; then
+            echo "No Chrome/Chromium executable available on runner"
+            exit 1
+          fi
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2000 \
+            --dump-dom \
+            "http://127.0.0.1:8765/explorer/?object=TimingNode" \
+            > bld/material-portal/browser-explorer.html
+
+          grep -q '<code>TimingNode</code>' bld/material-portal/browser-explorer.html
+          grep -q 'One-hop context' bld/material-portal/browser-explorer.html
+          grep -q 'Open object page' bld/material-portal/browser-explorer.html
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2000 \
+            --window-size=1600,1000 \
+            --screenshot=bld/material-portal/explorer-TimingNode.png \
+            "http://127.0.0.1:8765/explorer/?object=TimingNode"
+
       - name: Capture installed dependency set
         run: python -m pip freeze > bld/material-portal/pip-freeze.txt
 
