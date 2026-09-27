@@ -111,3 +111,47 @@ We want to learn:
 
 The next candidate comparison should use this same eight-object fixture and the
 same qualification questions.
+
+## Qualification result
+
+The first CI qualification is green:
+
+- workflow run: `36341893252`;
+- all GRAPH-01 through GRAPH-08 unit/qualification cases passed;
+- retained artifact: `engineering-graph-evidence`;
+- artifact contains:
+  - `engineering-graph.json` — normalized graph with generated backlinks;
+  - `focus-SI01-REQ-020.json` — one-hop incoming/outgoing neighborhood.
+
+The focused output contains `SI01-REQ-020` plus its direct use-case,
+interface, architecture and verification context. `CommandHandler` is
+correctly absent at depth 1 because it is one additional hop beyond
+`IF03-REQ-004`/`TimingNode`.
+
+### Baseline implementation size
+
+The first baseline is intentionally small but not free:
+
+- core graph/CLI implementation: about 357 source lines;
+- qualification tests: about 104 source lines;
+- reference fixture: about 108 JSON lines;
+- workflow: about 40 lines;
+- external Python runtime dependencies: **none**.
+
+These counts are comparison evidence, not production size targets.
+
+### Limitations exposed by the baseline
+
+The baseline also makes several costs visible:
+
+- JSON authoring is explicit and comparatively verbose;
+- relationship/type rules are currently hard-coded in Python;
+- there is no Markdown extraction or inline authoring model;
+- there is no generated HTML/table/diagram view yet;
+- source anchors are manually supplied;
+- cross-repository import/version handling is not implemented;
+- object types and relation vocabulary are experiment-owned code.
+
+This is useful evidence. A larger framework such as Sphinx-Needs should justify
+its additional machinery by reducing these costs or providing materially useful
+capabilities without damaging the desired Markdown-first authoring experience.
