@@ -5,7 +5,8 @@ on:
     paths:
       - "candidates/sphinx-needs/**"
       - "tests/verify_sphinx_needs_export.py"
-      - "tests/verify_sphinx_needs_flow.py"
+      - "tests/inspect_sphinx_needs_flow.py"
+      - "tests/focus_sphinx_needs_json.py"
       - "docs/05-sphinx-needs-comparison.md"
       - ".github/workflows/sphinx-needs.yml"
   push:
@@ -14,7 +15,8 @@ on:
     paths:
       - "candidates/sphinx-needs/**"
       - "tests/verify_sphinx_needs_export.py"
-      - "tests/verify_sphinx_needs_flow.py"
+      - "tests/inspect_sphinx_needs_flow.py"
+      - "tests/focus_sphinx_needs_json.py"
       - "docs/05-sphinx-needs-comparison.md"
       - ".github/workflows/sphinx-needs.yml"
 
@@ -49,10 +51,17 @@ jobs:
         run: |
           python tests/verify_sphinx_needs_export.py             bld/sphinx-needs/html/needs.json
 
-      - name: Verify focused one-hop graph
+      - name: Inspect built-in needflow depth behavior
         run: |
-          python tests/verify_sphinx_needs_flow.py \
-            bld/sphinx-needs/html
+          python tests/inspect_sphinx_needs_flow.py \
+            bld/sphinx-needs/html \
+            bld/sphinx-needs/needflow-depth-observation.json
+
+      - name: Verify exact one-hop query from needs.json
+        run: |
+          python tests/focus_sphinx_needs_json.py \
+            bld/sphinx-needs/html/needs.json \
+            bld/sphinx-needs/focus-SI01-REQ-020.json
 
       - name: Prove unknown link fails strict build
         shell: bash
