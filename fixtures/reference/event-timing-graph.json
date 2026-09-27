@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "source_repository": "brainboxemb/2026-010-01.meta.event-timing-software",
+    "source_revision": "reference-main-2026-09-27",
+    "description": "Bounded Experiment 007 reference slice derived from current event-timing engineering documentation."
+  },
+  "objects": [
+    {
+      "id": "UC-001",
+      "type": "use-case",
+      "title": "Start and prepare a TimingNode",
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/04-UC-system-use-cases.md",
+        "anchor": "uc-001--start-and-prepare-a-timingnode"
+      },
+      "relations": []
+    },
+    {
+      "id": "UC-008",
+      "type": "use-case",
+      "title": "Operate SI-01 through a desktop GUI",
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/04-UC-system-use-cases.md",
+        "anchor": "uc-008--operate-si-01-through-a-desktop-gui"
+      },
+      "relations": []
+    },
+    {
+      "id": "SI01-REQ-003",
+      "type": "requirement",
+      "title": "Minimal TimingNode composition",
+      "verification_required": true,
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/20-01-SRD-timing-application-requirements.md",
+        "anchor": "si01-req-003--minimal-timingnode-composition"
+      },
+      "relations": [
+        {"type": "source", "target": "UC-001"},
+        {"type": "allocated_to", "target": "TimingNode"},
+        {"type": "verified_by", "target": "VC-ST1-001"}
+      ]
+    },
+    {
+      "id": "SI01-REQ-020",
+      "type": "requirement",
+      "title": "Authoritative current status snapshot",
+      "verification_required": true,
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/20-01-SRD-timing-application-requirements.md",
+        "anchor": "si01-req-020--authoritative-current-status-snapshot"
+      },
+      "relations": [
+        {"type": "source", "target": "UC-001"},
+        {"type": "source", "target": "UC-008"},
+        {"type": "allocated_to", "target": "IF03-REQ-004"},
+        {"type": "allocated_to", "target": "TimingNode"},
+        {"type": "verified_by", "target": "VC-ST1-001"}
+      ]
+    },
+    {
+      "id": "IF03-REQ-004",
+      "type": "interface-requirement",
+      "title": "Status query",
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/40-01-IDD-application-control-status.md",
+        "anchor": "if03-req-004--status-query"
+      },
+      "relations": [
+        {"type": "source", "target": "SI01-REQ-020"},
+        {"type": "allocated_to", "target": "CommandHandler"},
+        {"type": "verified_by", "target": "VC-ST1-001"}
+      ]
+    },
+    {
+      "id": "TimingNode",
+      "type": "architecture-element",
+      "title": "TimingNode",
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/31-01-SAD-timing-application-architecture.md",
+        "anchor": "domain"
+      },
+      "relations": [
+        {"type": "related_to", "target": "CommandHandler"}
+      ]
+    },
+    {
+      "id": "CommandHandler",
+      "type": "architecture-element",
+      "title": "CommandHandler",
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/31-01-SAD-timing-application-architecture.md",
+        "anchor": "application"
+      },
+      "relations": []
+    },
+    {
+      "id": "VC-ST1-001",
+      "type": "verification-case",
+      "title": "Query and resynchronise first-executable status",
+      "source": {
+        "url": "https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/40-01-IDD-application-control-status.md",
+        "anchor": "vc-st1-001--query-and-resynchronise-first-executable-status"
+      },
+      "relations": []
+    }
+  ]
+}
