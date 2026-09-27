@@ -1,0 +1,90 @@
+name: Sphinx-Needs comparison
+
+on:
+  pull_request:
+    paths:
+      - "candidates/sphinx-needs/**"
+      - "tests/verify_sphinx_needs_export.py"
+      - "docs/05-sphinx-needs-comparison.md"
+      - ".github/workflows/sphinx-needs.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "candidates/sphinx-needs/**"
+      - "tests/verify_sphinx_needs_export.py"
+      - "docs/05-sphinx-needs-comparison.md"
+      - ".github/workflows/sphinx-needs.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Install pinned Sphinx stack
+        run: python -m pip install -r candidates/sphinx-needs/requirements.txt
+
+      - name: Build strict HTML + needs.json
+        run: |
+          sphinx-build -W --keep-going -b html             candidates/sphinx-needs/source             bld/sphinx-needs/html
+
+      - name: Verify exported engineering objects and backlinks
+        run: |
+          python tests/verify_sphinx_needs_export.py             bld/sphinx-needs/html/needs.json
+
+      - name: Prove unknown link fails strict build
+        shell: bash
+        run: |
+          rm -rf /tmp/sphinx-needs-negative
+          cp -R candidates/sphinx-needs/source /tmp/sphinx-needs-negative
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("/tmp/sphinx-needs-negative/index.md")
+          text = path.read_text(encoding="utf-8")
+          needle = ":derived_from: UC-001, UC-008"
+          replacement = ":derived_from: UC-404, UC-008"
+          if needle not in text:
+              raise SystemExit("negative-test source pattern not found")
+          path.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+          PY
+
+          set +e
+          sphinx-build -W --keep-going -b html             /tmp/sphinx-needs-negative             bld/sphinx-needs-negative             > bld/sphinx-needs/negative-build.log 2>&1
+          status=$?
+          set -e
+
+          if [ "$status" -eq 0 ]; then
+            echo "Expected invalid reference build to fail"
+            cat bld/sphinx-needs/negative-build.log
+            exit 1
+          fi
+
+          grep -q "UC-404" bld/sphinx-needs/negative-build.log
+
+      - name: Capture installed dependency set
+        run: python -m pip freeze > bld/sphinx-needs/pip-freeze.txt
+
+      - name: Upload Sphinx-Needs evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sphinx-needs-evidence
+          path: |
+            bld/sphinx-needs/
+            bld/sphinx-needs-negative/
+          if-no-files-found: error
