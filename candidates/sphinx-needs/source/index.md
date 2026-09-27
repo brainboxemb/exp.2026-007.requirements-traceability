@@ -55,7 +55,6 @@ Expose one authoritative current application/TimingNode status snapshot.
 :id: IF03-REQ-004
 :origin_url: https://github.com/brainboxemb/2026-010-01.meta.event-timing-software/blob/main/docs/40-01-IDD-application-control-status.md
 :origin_anchor: if03-req-004--status-query
-:derived_from: SI01-REQ-020
 :allocated_to: CommandHandler
 :verified_by: VC-ST1-001
 
