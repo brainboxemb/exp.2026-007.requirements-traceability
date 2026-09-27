@@ -367,16 +367,16 @@ needs.json used by traceability validation.
 
 <div class="eng-workspace" data-eng-explorer>
   <section class="eng-context">
-    <h2>Reference objects</h2>
-    <div class="eng-object-picker">
-      {"".join(chips)}
-    </div>
-    <h2>Clickable architecture slice</h2>
+    <h2>Architecture context</h2>
     {render_architecture_svg(graph)}
     <p>
       The diagram labels and relationships are resolved from engineering object
       IDs. Click a node without leaving this architecture context.
     </p>
+    <h2>Reference objects</h2>
+    <div class="eng-object-picker">
+      {"".join(chips)}
+    </div>
   </section>
   <aside class="eng-detail" data-eng-detail aria-live="polite">
     Select an engineering object.
