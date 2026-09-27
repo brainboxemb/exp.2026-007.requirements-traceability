@@ -4,9 +4,7 @@ on:
   pull_request:
     paths:
       - "candidates/sphinx-needs/**"
-      - "tests/verify_sphinx_needs_export.py"
-      - "tests/inspect_sphinx_needs_flow.py"
-      - "tests/focus_sphinx_needs_json.py"
+      - "tests/*sphinx_needs*.py"
       - "docs/05-sphinx-needs-comparison.md"
       - ".github/workflows/sphinx-needs.yml"
   push:
@@ -14,9 +12,7 @@ on:
       - main
     paths:
       - "candidates/sphinx-needs/**"
-      - "tests/verify_sphinx_needs_export.py"
-      - "tests/inspect_sphinx_needs_flow.py"
-      - "tests/focus_sphinx_needs_json.py"
+      - "tests/*sphinx_needs*.py"
       - "docs/05-sphinx-needs-comparison.md"
       - ".github/workflows/sphinx-needs.yml"
 
