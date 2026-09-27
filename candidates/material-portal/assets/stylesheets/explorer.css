@@ -1,6 +1,10 @@
+.md-grid {
+  max-width: 92rem;
+}
+
 .eng-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(20rem, 0.75fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(24rem, 1fr);
   gap: 1.25rem;
   align-items: start;
 }
@@ -56,9 +60,9 @@
 }
 
 .eng-architecture {
+  display: block;
   width: 100%;
   height: auto;
-  min-height: 16rem;
 }
 
 .eng-node {
