@@ -43,6 +43,11 @@ def main(path: str) -> int:
         raise AssertionError("generated derived_from backlinks are incomplete")
 
     ifreq = needs["IF03-REQ-004"]
+    if ifreq.get("derived_from"):
+        raise AssertionError(
+            "IF03-REQ-004 duplicates the requirement relationship instead of "
+            "using the generated allocation backlink"
+        )
     if "SI01-REQ-020" not in set(ifreq["allocated_to_back"]):
         raise AssertionError("generated allocation backlink is missing")
 
