@@ -5,6 +5,8 @@ on:
     paths:
       - "candidates/sphinx-needs/**"
       - "tests/verify_sphinx_needs_export.py"
+      - "tests/verify_sphinx_needs_flow.py"
+      - "tests/verify_sphinx_needs_flow.py"
       - "docs/05-sphinx-needs-comparison.md"
       - ".github/workflows/sphinx-needs.yml"
   push:
@@ -46,6 +48,11 @@ jobs:
       - name: Verify exported engineering objects and backlinks
         run: |
           python tests/verify_sphinx_needs_export.py             bld/sphinx-needs/html/needs.json
+
+      - name: Verify focused one-hop graph
+        run: |
+          python tests/verify_sphinx_needs_flow.py \
+            bld/sphinx-needs/html
 
       - name: Prove unknown link fails strict build
         shell: bash
