@@ -8,6 +8,16 @@ docs_dir: ../../bld/material-portal/docs
 site_dir: ../../bld/material-portal/site
 strict: true
 
+nav:
+  - Portal: index.md
+  - Architecture book: book.md
+  - Engineering explorer: explorer.md
+  - Objects:
+      - Engineering object index: objects/index.md
+
+not_in_nav: |
+  objects/*.md
+
 theme:
   name: material
   features:
