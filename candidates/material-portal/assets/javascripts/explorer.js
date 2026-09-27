@@ -136,18 +136,20 @@
       }
     }
 
-    root.querySelectorAll("[data-object-id]").forEach((node) => {
-      node.addEventListener("click", (event) => {
-        const target = event.currentTarget;
+    root.addEventListener("click", (event) => {
+      const target = event.target.closest("[data-object-id]");
+      if (target && root.contains(target)) {
         render(target.dataset.objectId, true);
-      });
+      }
+    });
 
-      node.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          render(event.currentTarget.dataset.objectId, true);
-        }
-      });
+    root.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const target = event.target.closest("[data-object-id]");
+      if (target && root.contains(target)) {
+        event.preventDefault();
+        render(target.dataset.objectId, true);
+      }
     });
 
     const requested = new URL(window.location.href).searchParams.get("object");
