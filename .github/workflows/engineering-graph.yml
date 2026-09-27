@@ -1,0 +1,40 @@
+name: Engineering graph PoP
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run qualification tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Validate reference graph
+        run: python -m src.eng_graph validate fixtures/reference/event-timing-graph.json
+
+      - name: Generate retained evidence
+        run: |
+          python -m src.eng_graph export             fixtures/reference/event-timing-graph.json             bld/engineering-graph.json
+          python -m src.eng_graph focus             fixtures/reference/event-timing-graph.json             SI01-REQ-020             bld/focus-SI01-REQ-020.json             --depth 1             --direction both
+
+      - name: Upload graph evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: engineering-graph-evidence
+          path: bld/
+          if-no-files-found: error
