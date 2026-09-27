@@ -2,32 +2,47 @@
   "$defs": {
     "type-uc": {
       "properties": {
-        "type": {"const": "uc"}
+        "type": {
+          "const": "uc"
+        }
       }
     },
     "type-req": {
       "properties": {
-        "type": {"const": "req"}
+        "type": {
+          "const": "req"
+        }
       }
     },
     "type-ifreq": {
       "properties": {
-        "type": {"const": "ifreq"}
+        "type": {
+          "const": "ifreq"
+        }
       }
     },
     "type-arch": {
       "properties": {
-        "type": {"const": "arch"}
+        "type": {
+          "const": "arch"
+        }
       }
     },
     "type-vc": {
       "properties": {
-        "type": {"const": "vc"}
+        "type": {
+          "const": "vc"
+        }
       }
     },
     "req-allocation-target": {
       "properties": {
-        "type": {"enum": ["ifreq", "arch"]}
+        "type": {
+          "enum": [
+            "ifreq",
+            "arch"
+          ]
+        }
       }
     }
   },
@@ -105,14 +120,14 @@
       }
     },
     {
-      "id": "ifreq-derived-from-requirement",
-      "message": "An interface requirement must derive from at least one software requirement.",
+      "id": "ifreq-has-upstream-requirement",
+      "message": "An interface requirement must be allocated from at least one software requirement; the inverse is derived from generated allocated_to backlinks.",
       "select": {
         "$ref": "#/$defs/type-ifreq"
       },
       "validate": {
-        "network": {
-          "derived_from": {
+        "network_back": {
+          "allocated_to": {
             "items": {
               "local": {
                 "$ref": "#/$defs/type-req"
