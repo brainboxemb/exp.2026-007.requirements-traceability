@@ -1,0 +1,230 @@
+{
+  "$defs": {
+    "type-uc": {
+      "properties": {
+        "type": {
+          "const": "uc"
+        }
+      }
+    },
+    "type-req": {
+      "properties": {
+        "type": {
+          "const": "req"
+        }
+      }
+    },
+    "type-ifreq": {
+      "properties": {
+        "type": {
+          "const": "ifreq"
+        }
+      }
+    },
+    "type-arch": {
+      "properties": {
+        "type": {
+          "const": "arch"
+        }
+      }
+    },
+    "type-vc": {
+      "properties": {
+        "type": {
+          "const": "vc"
+        }
+      }
+    },
+    "type-docsec": {
+      "properties": {
+        "type": {
+          "const": "docsec"
+        }
+      }
+    },
+    "req-source": {
+      "properties": {
+        "type": {
+          "enum": [
+            "uc",
+            "docsec"
+          ]
+        }
+      }
+    },
+    "req-allocation-target": {
+      "properties": {
+        "type": {
+          "enum": [
+            "ifreq",
+            "arch"
+          ]
+        }
+      }
+    }
+  },
+  "schemas": [
+    {
+      "id": "req-derived-from-engineering-source",
+      "message": "A software requirement must derive from at least one use case or document section.",
+      "select": {
+        "$ref": "#/$defs/type-req"
+      },
+      "validate": {
+        "network": {
+          "derived_from": {
+            "items": {
+              "local": {
+                "$ref": "#/$defs/req-source"
+              }
+            },
+            "contains": {
+              "local": {
+                "$ref": "#/$defs/req-source"
+              }
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "req-has-allocation",
+      "message": "A software requirement must have at least one interface or architecture allocation.",
+      "select": {
+        "$ref": "#/$defs/type-req"
+      },
+      "validate": {
+        "network": {
+          "allocated_to": {
+            "items": {
+              "local": {
+                "$ref": "#/$defs/req-allocation-target"
+              }
+            },
+            "contains": {
+              "local": {
+                "$ref": "#/$defs/req-allocation-target"
+              }
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "req-has-verification",
+      "message": "A software requirement must be verified by at least one verification case.",
+      "select": {
+        "$ref": "#/$defs/type-req"
+      },
+      "validate": {
+        "network": {
+          "verified_by": {
+            "items": {
+              "local": {
+                "$ref": "#/$defs/type-vc"
+              }
+            },
+            "contains": {
+              "local": {
+                "$ref": "#/$defs/type-vc"
+              }
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "ifreq-derived-from-requirement",
+      "message": "An interface requirement must derive from at least one software requirement.",
+      "select": {
+        "$ref": "#/$defs/type-ifreq"
+      },
+      "validate": {
+        "network": {
+          "derived_from": {
+            "items": {
+              "local": {
+                "$ref": "#/$defs/type-req"
+              }
+            },
+            "contains": {
+              "local": {
+                "$ref": "#/$defs/type-req"
+              }
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "ifreq-allocated-to-architecture",
+      "message": "An interface requirement must be allocated to at least one architecture element.",
+      "select": {
+        "$ref": "#/$defs/type-ifreq"
+      },
+      "validate": {
+        "network": {
+          "allocated_to": {
+            "items": {
+              "local": {
+                "$ref": "#/$defs/type-arch"
+              }
+            },
+            "contains": {
+              "local": {
+                "$ref": "#/$defs/type-arch"
+              }
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "ifreq-has-verification",
+      "message": "An interface requirement must be verified by at least one verification case.",
+      "select": {
+        "$ref": "#/$defs/type-ifreq"
+      },
+      "validate": {
+        "network": {
+          "verified_by": {
+            "items": {
+              "local": {
+                "$ref": "#/$defs/type-vc"
+              }
+            },
+            "contains": {
+              "local": {
+                "$ref": "#/$defs/type-vc"
+              }
+            },
+            "minContains": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "arch-relations-target-architecture",
+      "message": "Architecture related_to links may only target architecture elements.",
+      "select": {
+        "$ref": "#/$defs/type-arch"
+      },
+      "validate": {
+        "network": {
+          "related_to": {
+            "items": {
+              "local": {
+                "$ref": "#/$defs/type-arch"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
