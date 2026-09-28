@@ -6,11 +6,12 @@ The first reader-facing portal candidate is Material for MkDocs `9.7.7`.
 
 Status: **qualified for the bounded Experiment 007 portal/workspace slice**.
 
-Primary qualification run:
-`36343762003`
+Primary qualification runs on the final PR head:
+- Material portal PoP `36343938521` — green;
+- Engineering graph PoP `36343938529` — green.
 
 Exact source:
-`853f70f568e86deda6e0eea50b71a70110d6cd14`
+`e1e9d610fd89f8df5d460eed28d006038f03801e`
 
 The candidate is intentionally evaluated **after** the engineering graph and
 Sphinx-Needs export boundary were qualified.
@@ -197,7 +198,7 @@ source ownership.
 
 The qualified retained artifact is `material-portal-evidence`.
 
-For run `36343762003`:
+For the qualified final PR-head evidence:
 
 - compressed CI artifact: about **0.85 MB**;
 - generated static site: **63 files**, about **2.77 MB** uncompressed;
