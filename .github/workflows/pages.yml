@@ -1,0 +1,220 @@
+name: Experiment review site
+
+on:
+  pull_request:
+    paths:
+      - "pages/**"
+      - "candidates/material-portal/**"
+      - "candidates/sphinx-needs/**"
+      - "src/portal.py"
+      - "tests/verify_material_portal.py"
+      - ".github/workflows/pages.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "pages/**"
+      - "candidates/material-portal/**"
+      - "candidates/sphinx-needs/**"
+      - "src/portal.py"
+      - "tests/verify_material_portal.py"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-review-site:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned documentation stack
+        run: |
+          python -m pip install \
+            -r candidates/sphinx-needs/requirements.txt \
+            -r candidates/material-portal/requirements.txt
+
+      - name: Export validated engineering graph
+        run: |
+          sphinx-build -W --keep-going -b needs \
+            candidates/sphinx-needs/source \
+            bld/review/sphinx
+
+      - name: Generate portal source
+        run: |
+          python -m src.portal generate \
+            bld/review/sphinx/needs.json \
+            candidates/material-portal \
+            bld/material-portal/docs
+
+      - name: Build portal step
+        run: |
+          mkdocs build --strict \
+            --config-file candidates/material-portal/mkdocs.yml
+
+      - name: Assemble experiment review site
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          site="bld/pages-site"
+          rm -rf "$site"
+          mkdir -p "$site/assets" "$site/steps/04-portal-workspace" "$site/review"
+
+          cp pages/index.html "$site/index.html"
+          cp pages/assets/experiment.css "$site/assets/experiment.css"
+          cp -a bld/material-portal/site/. "$site/steps/04-portal-workspace/"
+
+          cat > "$site/review/README.md" <<'EOF'
+          # Experiment 007 review output
+
+          Start at `index.html`.
+
+          ## Step 04 — Portal & workspace
+
+          Open:
+
+          `steps/04-portal-workspace/explorer/index.html`
+
+          Review whether:
+
+          - architecture context and selected-object detail remain understandable together;
+          - navigation between related engineering objects is discoverable;
+          - the page uses horizontal space effectively;
+          - generated object pages remain readable;
+          - traceability adds context rather than visual noise.
+
+          The retained browser screenshot is `step-04-TimingNode.png`.
+          EOF
+
+      - name: Verify assembled site
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f bld/pages-site/index.html
+          test -f bld/pages-site/steps/04-portal-workspace/index.html
+          test -f bld/pages-site/steps/04-portal-workspace/explorer/index.html
+          test -f bld/pages-site/steps/04-portal-workspace/objects/TimingNode/index.html
+          grep -q 'steps/04-portal-workspace/' bld/pages-site/index.html
+          python tests/verify_material_portal.py bld/material-portal
+
+      - name: Capture representative browser review
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m http.server 8765 \
+            --bind 127.0.0.1 \
+            --directory bld/pages-site \
+            > bld/pages-site/review/browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          python - <<'PY'
+          import time
+          import urllib.request
+
+          url = "http://127.0.0.1:8765/steps/04-portal-workspace/explorer/?object=TimingNode"
+          for _ in range(20):
+              try:
+                  urllib.request.urlopen(url, timeout=1).read(1)
+                  break
+              except Exception:
+                  time.sleep(0.25)
+          else:
+              raise SystemExit("review site did not become ready")
+          PY
+
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$chrome" ]; then
+            echo "No Chrome/Chromium executable available on runner"
+            exit 1
+          fi
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2000 \
+            --window-size=1600,1000 \
+            --screenshot=bld/pages-site/review/step-04-TimingNode.png \
+            "http://127.0.0.1:8765/steps/04-portal-workspace/explorer/?object=TimingNode"
+
+      - name: Write human review summary
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          # Experiment 007 review site
+
+          The workflow built a human-reviewable documentation site, not only pass/fail evidence.
+
+          ## What to review
+
+          **Step 04 — Portal & workspace**
+
+          Check whether:
+
+          - the architecture stays understandable while an object is selected;
+          - the detail panel helps rather than overloads the reader;
+          - relation navigation is discoverable;
+          - horizontal space is used well;
+          - generated pages still feel like documentation.
+
+          ## Review output
+
+          Download artifact **`review-output`** and open `index.html`.
+
+          After this change is merged to `main`, the same output is published through GitHub Pages.
+          EOF
+
+      - name: Upload human review output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: review-output
+          path: bld/pages-site/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: bld/pages-site
+
+  deploy-pages:
+    if: github.event_name != 'pull_request'
+    needs: build-review-site
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy experiment review site
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+      - name: Publish live review URL
+        run: |
+          echo "## Live review site" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
