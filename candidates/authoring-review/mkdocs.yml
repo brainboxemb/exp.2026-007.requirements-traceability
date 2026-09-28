@@ -2,6 +2,9 @@ site_name: Experiment 007 — Real Markdown authoring
 site_description: Human review surface for Experiment 007 Step 05
 strict: true
 
+docs_dir: ../../bld/authoring/review-docs
+site_dir: ../../bld/authoring/review-site
+
 nav:
   - Review: index.md
   - Compact metadata: compact.md
