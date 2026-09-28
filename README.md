@@ -70,8 +70,7 @@ the same information.
 6. [Sphinx-Needs comparison](docs/05-sphinx-needs-comparison.md)
 7. [Material portal/workspace](docs/06-material-portal.md)
 8. [Real Markdown authoring](docs/07-real-markdown-authoring.md)
-9. qualify clickable real architecture/use-case navigation and the reusable
-   production owner boundary;
+9. [Clickable real architecture and richer use-case navigation](docs/08-clickable-real-architecture.md)
 10. decide whether the experiment has enough evidence for a production-adoption
     proposal or needs one final bounded PoP;
 11. hand production mechanisms to the proper owner only after the experiment
