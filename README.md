@@ -3,13 +3,16 @@
 Experiment for interactive engineering documentation, traceability, architecture
 navigation and verification.
 
-Status: **active — target experience and candidate architecture first**
+Status: **active — real authoring and navigation qualification**
 
 Cross-project coordination:
 [brainboxemb.meta Experiment 007](https://github.com/brainboxemb/brainboxemb.meta/tree/feature/issue-167-requirements-traceability-experiment/experiments/007-requirements-traceability)
 
 Current experiment issue:
-[#1 — Define target engineering-documentation experience and evaluate candidate architecture](https://github.com/brainboxemb/exp.2026-007.requirements-traceability/issues/1)
+[#9 — Qualify real Markdown authoring and richer use-case navigation](https://github.com/brainboxemb/exp.2026-007.requirements-traceability/issues/9)
+
+Human review site:
+[Experiment 007 GitHub Pages](https://brainboxemb.github.io/exp.2026-007.requirements-traceability/)
 
 Reference project:
 [`2026-010-01.meta.event-timing-software`](https://github.com/brainboxemb/2026-010-01.meta.event-timing-software)
@@ -63,11 +66,14 @@ the same information.
 2. [Evaluation criteria](docs/01-evaluation-criteria.md)
 3. [Candidate architecture and tools](docs/02-candidate-architecture.md)
 4. [Event-timing reference slice](docs/03-reference-slice.md)
-5. implement a bounded technology PoP only after the target and candidate split
-   are clear;
-6. qualify the selected shape with reproducible cases and retained evidence;
-7. hand production mechanisms to the proper owner only after the experiment
-   supports that decision.
+5. [Minimal engineering graph](docs/04-minimal-engineering-graph.md)
+6. [Sphinx-Needs comparison](docs/05-sphinx-needs-comparison.md)
+7. [Material portal/workspace](docs/06-material-portal.md)
+8. [Real Markdown authoring](docs/07-real-markdown-authoring.md)
+9. qualify clickable real architecture/use-case navigation and the reusable
+   production owner boundary;
+10. hand production mechanisms to the proper owner only after the experiment
+    supports that decision.
 
 ## Ownership
 
