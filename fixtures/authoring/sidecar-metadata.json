@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "objects": {
+    "UC-001": {
+      "type": "use-case"
+    },
+    "UC-008": {
+      "type": "use-case"
+    },
+    "UC-014": {
+      "type": "use-case"
+    },
+    "SAD-TESTABILITY": {
+      "type": "document-section"
+    },
+    "SVP-ST-1": {
+      "type": "document-section"
+    },
+    "TimingNode": {
+      "type": "architecture-element",
+      "relations": {
+        "related_to": [
+          "CommandHandler",
+          "Conductor"
+        ]
+      }
+    },
+    "CommandHandler": {
+      "type": "architecture-element",
+      "relations": {
+        "related_to": [
+          "RemoteApi"
+        ]
+      }
+    },
+    "Conductor": {
+      "type": "architecture-element",
+      "relations": {
+        "related_to": [
+          "TimingNode"
+        ]
+      }
+    },
+    "RemoteApi": {
+      "type": "architecture-element",
+      "relations": {
+        "related_to": [
+          "CommandHandler"
+        ]
+      }
+    },
+    "SI01-REQ-003": {
+      "type": "requirement",
+      "relations": {
+        "source": [
+          "UC-001",
+          "UC-014"
+        ],
+        "allocated_to": [
+          "TimingNode"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "SI01-REQ-020": {
+      "type": "requirement",
+      "relations": {
+        "source": [
+          "UC-001",
+          "UC-008"
+        ],
+        "allocated_to": [
+          "TimingNode",
+          "IF03-REQ-004"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "SI01-REQ-021": {
+      "type": "requirement",
+      "relations": {
+        "source": [
+          "UC-001",
+          "UC-008"
+        ],
+        "allocated_to": [
+          "TimingNode",
+          "IF03-REQ-004"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "SI01-REQ-022": {
+      "type": "requirement",
+      "relations": {
+        "source": [
+          "UC-008"
+        ],
+        "allocated_to": [
+          "CommandHandler",
+          "IF03-REQ-001",
+          "IF03-REQ-004"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "SI01-REQ-030": {
+      "type": "requirement",
+      "relations": {
+        "source": [
+          "SAD-TESTABILITY"
+        ],
+        "allocated_to": [
+          "CommandHandler"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "SI01-REQ-031": {
+      "type": "requirement",
+      "relations": {
+        "source": [
+          "SAD-TESTABILITY",
+          "SVP-ST-1"
+        ],
+        "allocated_to": [
+          "CommandHandler",
+          "RemoteApi",
+          "IF03-REQ-002"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "IF03-REQ-001": {
+      "type": "interface-requirement",
+      "relations": {
+        "source": [
+          "SI01-REQ-022",
+          "SI01-REQ-030"
+        ],
+        "allocated_to": [
+          "CommandHandler",
+          "RemoteApi"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "IF03-REQ-002": {
+      "type": "interface-requirement",
+      "relations": {
+        "source": [
+          "SI01-REQ-031"
+        ],
+        "allocated_to": [
+          "RemoteApi"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "IF03-REQ-004": {
+      "type": "interface-requirement",
+      "relations": {
+        "source": [
+          "SI01-REQ-020",
+          "SI01-REQ-021",
+          "SI01-REQ-022"
+        ],
+        "allocated_to": [
+          "RemoteApi",
+          "CommandHandler"
+        ],
+        "verified_by": [
+          "VC-ST1-001"
+        ]
+      }
+    },
+    "VC-ST1-001": {
+      "type": "verification-case"
+    }
+  }
+}
