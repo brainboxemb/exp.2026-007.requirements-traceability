@@ -8,6 +8,11 @@ on:
       - "candidates/sphinx-needs/**"
       - "src/portal.py"
       - "tests/verify_material_portal.py"
+      - "fixtures/authoring/**"
+      - "candidates/authoring-review/**"
+      - "src/authoring.py"
+      - "src/authoring_review.py"
+      - "src/eng_graph.py"
       - ".github/workflows/pages.yml"
   push:
     branches:
@@ -18,6 +23,11 @@ on:
       - "candidates/sphinx-needs/**"
       - "src/portal.py"
       - "tests/verify_material_portal.py"
+      - "fixtures/authoring/**"
+      - "candidates/authoring-review/**"
+      - "src/authoring.py"
+      - "src/authoring_review.py"
+      - "src/eng_graph.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -61,6 +71,30 @@ jobs:
           mkdocs build --strict \
             --config-file candidates/material-portal/mkdocs.yml
 
+      - name: Export Step 05 authoring graph
+        run: |
+          mkdir -p bld/authoring
+          python -m src.authoring extract \
+            fixtures/authoring/compact-metadata.md \
+            fixtures/authoring/reference.json \
+            bld/authoring/compact-graph.json \
+            --mode compact
+
+      - name: Generate Step 05 authoring review
+        run: |
+          python -m src.authoring_review \
+            fixtures/authoring/compact-metadata.md \
+            fixtures/authoring/sidecar-content.md \
+            fixtures/authoring/sidecar-metadata.json \
+            fixtures/authoring/native-myst.md \
+            bld/authoring/compact-graph.json \
+            bld/authoring/review-docs
+
+      - name: Build Step 05 authoring review
+        run: |
+          mkdocs build --strict \
+            --config-file candidates/authoring-review/mkdocs.yml
+
       - name: Assemble experiment review site
         shell: bash
         run: |
@@ -68,11 +102,15 @@ jobs:
 
           site="bld/pages-site"
           rm -rf "$site"
-          mkdir -p "$site/assets" "$site/steps/04-portal-workspace" "$site/review"
+          mkdir -p "$site/assets" \
+            "$site/steps/04-portal-workspace" \
+            "$site/steps/05-real-markdown-authoring" \
+            "$site/review"
 
           cp pages/index.html "$site/index.html"
           cp pages/assets/experiment.css "$site/assets/experiment.css"
           cp -a bld/material-portal/site/. "$site/steps/04-portal-workspace/"
+          cp -a bld/authoring/review-site/. "$site/steps/05-real-markdown-authoring/"
 
           cat > "$site/review/README.md" <<'EOF'
           # Experiment 007 review output
@@ -94,6 +132,21 @@ jobs:
           - traceability adds context rather than visual noise.
 
           The retained browser screenshot is `step-04-TimingNode.png`.
+
+          ## Step 05 — Real Markdown authoring
+
+          Open:
+
+          `steps/05-real-markdown-authoring/index.html`
+
+          Review whether:
+
+          - compact metadata still feels like normal engineering Markdown;
+          - sidecar metadata creates too much distance from the owning prose;
+          - native MyST remains acceptable in normal GitHub/Markdown review;
+          - the generated graph/backlinks add useful navigation around use cases.
+
+          The retained browser screenshot is `step-05-authoring.png`.
           EOF
 
       - name: Verify assembled site
@@ -104,7 +157,12 @@ jobs:
           test -f bld/pages-site/steps/04-portal-workspace/index.html
           test -f bld/pages-site/steps/04-portal-workspace/explorer/index.html
           test -f bld/pages-site/steps/04-portal-workspace/objects/TimingNode/index.html
+          test -f bld/pages-site/steps/05-real-markdown-authoring/index.html
+          test -f bld/pages-site/steps/05-real-markdown-authoring/compact/index.html
+          test -f bld/pages-site/steps/05-real-markdown-authoring/sidecar/index.html
+          test -f bld/pages-site/steps/05-real-markdown-authoring/native-myst/index.html
           grep -q 'steps/04-portal-workspace/' bld/pages-site/index.html
+          grep -q 'steps/05-real-markdown-authoring/' bld/pages-site/index.html
           python tests/verify_material_portal.py bld/material-portal
 
       - name: Capture representative browser review
@@ -150,6 +208,16 @@ jobs:
             --screenshot=bld/pages-site/review/step-04-TimingNode.png \
             "http://127.0.0.1:8765/steps/04-portal-workspace/explorer/?object=TimingNode"
 
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2000 \
+            --window-size=1600,1000 \
+            --screenshot=bld/pages-site/review/step-05-authoring.png \
+            "http://127.0.0.1:8765/steps/05-real-markdown-authoring/"
+
       - name: Write human review summary
         shell: bash
         run: |
@@ -162,13 +230,12 @@ jobs:
 
           **Step 04 — Portal & workspace**
 
-          Check whether:
+          Check whether architecture context and selected-object detail remain understandable together.
 
-          - the architecture stays understandable while an object is selected;
-          - the detail panel helps rather than overloads the reader;
-          - relation navigation is discoverable;
-          - horizontal space is used well;
-          - generated pages still feel like documentation.
+          **Step 05 — Real Markdown authoring**
+
+          Compare compact metadata, sidecar metadata and native MyST as normal engineering source.
+          Pay special attention to readability, source/metadata distance and generated backlinks.
 
           ## Review output
 
