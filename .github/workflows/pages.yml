@@ -13,6 +13,10 @@ on:
       - "src/authoring.py"
       - "src/authoring_review.py"
       - "src/eng_graph.py"
+      - "fixtures/navigation/**"
+      - "candidates/navigation-review/**"
+      - "src/navigation.py"
+      - "tests/test_navigation.py"
       - ".github/workflows/pages.yml"
   push:
     branches:
@@ -28,6 +32,10 @@ on:
       - "src/authoring.py"
       - "src/authoring_review.py"
       - "src/eng_graph.py"
+      - "fixtures/navigation/**"
+      - "candidates/navigation-review/**"
+      - "src/navigation.py"
+      - "tests/test_navigation.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -95,6 +103,11 @@ jobs:
           mkdocs build --strict \
             --config-file candidates/authoring-review/mkdocs.yml
 
+      - name: Generate Step 06 clickable real architecture
+        run: |
+          python -m unittest tests.test_navigation
+          python -m src.navigation bld/navigation-review
+
       - name: Assemble experiment review site
         shell: bash
         run: |
@@ -105,12 +118,14 @@ jobs:
           mkdir -p "$site/assets" \
             "$site/steps/04-portal-workspace" \
             "$site/steps/05-real-markdown-authoring" \
+            "$site/steps/06-clickable-real-architecture" \
             "$site/review"
 
           cp pages/index.html "$site/index.html"
           cp pages/assets/experiment.css "$site/assets/experiment.css"
           cp -a bld/material-portal/site/. "$site/steps/04-portal-workspace/"
           cp -a bld/authoring/review-site/. "$site/steps/05-real-markdown-authoring/"
+          cp -a bld/navigation-review/. "$site/steps/06-clickable-real-architecture/"
 
           cat > "$site/review/README.md" <<'EOF'
           # Experiment 007 review output
@@ -147,6 +162,24 @@ jobs:
           - the generated graph/backlinks add useful navigation around use cases.
 
           The retained browser screenshot is `step-05-authoring.png`.
+
+          ## Step 06 — Clickable real architecture
+
+          Open:
+
+          `steps/06-clickable-real-architecture/index.html?object=TimingNode`
+
+          Review whether:
+
+          - the real layered architecture is a useful navigation surface;
+          - TimingNode exposes UC-001 and UC-014 without a hand-maintained lookup table;
+          - opening UC-001 keeps useful architecture context visible;
+          - requirement/verification links add context without overwhelming the narrative;
+          - authoritative-source links clearly distinguish stable anchors from pinned line fallbacks.
+
+          Retained screenshots:
+          - `step-06-TimingNode.png`
+          - `step-06-UC-001.png`
           EOF
 
       - name: Verify assembled site
@@ -161,8 +194,12 @@ jobs:
           test -f bld/pages-site/steps/05-real-markdown-authoring/compact/index.html
           test -f bld/pages-site/steps/05-real-markdown-authoring/sidecar/index.html
           test -f bld/pages-site/steps/05-real-markdown-authoring/native-myst/index.html
+          test -f bld/pages-site/steps/06-clickable-real-architecture/index.html
+          test -f bld/pages-site/steps/06-clickable-real-architecture/navigation-model.json
+          grep -q 'data-engineering-id="TimingNode"' bld/pages-site/steps/06-clickable-real-architecture/index.html
           grep -q 'steps/04-portal-workspace/' bld/pages-site/index.html
           grep -q 'steps/05-real-markdown-authoring/' bld/pages-site/index.html
+          grep -q 'steps/06-clickable-real-architecture/' bld/pages-site/index.html
           python tests/verify_material_portal.py bld/material-portal
 
       - name: Capture representative browser review
@@ -218,6 +255,26 @@ jobs:
             --screenshot=bld/pages-site/review/step-05-authoring.png \
             "http://127.0.0.1:8765/steps/05-real-markdown-authoring/"
 
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2500 \
+            --window-size=1800,1100 \
+            --screenshot=bld/pages-site/review/step-06-TimingNode.png \
+            "http://127.0.0.1:8765/steps/06-clickable-real-architecture/?object=TimingNode"
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2500 \
+            --window-size=1800,1100 \
+            --screenshot=bld/pages-site/review/step-06-UC-001.png \
+            "http://127.0.0.1:8765/steps/06-clickable-real-architecture/?object=UC-001"
+
       - name: Write human review summary
         shell: bash
         run: |
@@ -236,6 +293,10 @@ jobs:
 
           Compare compact metadata, sidecar metadata and native MyST as normal engineering source.
           Pay special attention to readability, source/metadata distance and generated backlinks.
+
+          **Step 06 — Clickable real architecture**
+
+          Click TimingNode and then UC-001/UC-014. Judge whether the real architecture remains useful context while reading the real narrative.
 
           ## Review output
 
