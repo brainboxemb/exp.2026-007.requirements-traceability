@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "objects": {
+    "UC-001": {
+      "type": "use-case",
+      "relations": {
+        "related_to": ["TimingNode", "CommandHandler"],
+        "derived_to": ["SI01-REQ-003", "SI01-REQ-020", "SI01-REQ-021", "SI01-REQ-022"],
+        "verified_by": ["VC-ST1-001"]
+      }
+    },
+    "UC-014": {
+      "type": "use-case",
+      "relations": {
+        "related_to": ["TimingNode", "CommandHandler"],
+        "derived_to": ["SI01-REQ-003"],
+        "verified_by": ["VC-ST1-001"]
+      }
+    },
+    "TimingNode": {
+      "type": "architecture-element",
+      "relations": {
+        "related_to": ["CommandHandler"],
+        "allocated_from": ["SI01-REQ-003", "SI01-REQ-020", "SI01-REQ-021", "SI01-REQ-022"]
+      }
+    },
+    "CommandHandler": {
+      "type": "architecture-element",
+      "relations": {
+        "related_to": ["TimingNode"],
+        "allocated_from": ["SI01-REQ-030", "SI01-REQ-031"]
+      }
+    },
+    "SI01-REQ-020": {
+      "type": "requirement",
+      "relations": {
+        "derived_from": ["UC-001"],
+        "allocated_to": ["TimingNode", "IF03-REQ-004"],
+        "verified_by": ["VC-ST1-001"]
+      }
+    },
+    "IF03-REQ-004": {
+      "type": "interface-requirement",
+      "relations": {
+        "derived_from": ["SI01-REQ-020"],
+        "related_to": ["CommandHandler"],
+        "verified_by": ["VC-ST1-001"]
+      }
+    },
+    "VC-ST1-001": {
+      "type": "verification-case",
+      "relations": {
+        "verifies": ["SI01-REQ-003", "SI01-REQ-020", "IF03-REQ-004"]
+      }
+    }
+  }
+}
