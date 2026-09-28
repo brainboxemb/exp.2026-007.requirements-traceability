@@ -8,7 +8,7 @@ requirements, use cases and verification.
 
 The reference project is pinned to:
 
-`brainboxemb/2026-010-01.meta.event-timing-software@15f15c751d054f6a6af5e3478f5f9a85d046712c`
+`brainboxemb/2026-010-01.meta.event-timing-software@d6f629093e865a7fc33c9adbaaad7e66a5510751`
 
 The current diagram generator owner was inspected at:
 
@@ -27,6 +27,15 @@ Exact qualified source head:
 `5190b1ed1381fdcb2a02418abfb384857c78ff70`
 
 ## Real inputs
+
+The Step-06 review fixture was refreshed on 28 September 2026 to the current
+event-timing `main` architecture rather than a daily tag. The available
+`daily/20260924*` tags predate the latest architecture work, including
+ApplicationBootstrap, backend-message routing/Web multiplicity and runtime
+logging/live diagnostics.
+
+The matching generated diagram is pinned from `prod/docs` commit
+`dafd1c784451456793f3f322f400e4d4e781a23d`.
 
 The PoP mirrors only the reference material needed for navigation:
 
