@@ -1,0 +1,9 @@
+{
+  "source_repository": "brainboxemb/2026-010-01.meta.event-timing-software",
+  "source_revision": "15f15c751d054f6a6af5e3478f5f9a85d046712c",
+  "generated_branch": "prod/docs",
+  "tool_eng_docs_revision": "82510d4e70ed7ece35936ffdd67cdaa55e0accaf",
+  "diagram_source": "docs/_diagrams/layered-architecture.yaml",
+  "generated_svg": "architecture/layered-architecture.svg",
+  "purpose": "Pinned real-source authority for Experiment 007 issue #15."
+}
