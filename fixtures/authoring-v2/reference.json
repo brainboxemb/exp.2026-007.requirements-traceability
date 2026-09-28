@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "source_repository": "brainboxemb/2026-010-01.meta.event-timing-software",
+  "source_revision": "a855e66f6ecb325ab77139745ef50a5c6b7acc17",
+  "expected_object_count": 17,
+  "expected_relation_count": 34
+}
