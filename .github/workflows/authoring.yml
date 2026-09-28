@@ -1,0 +1,167 @@
+name: Real Markdown authoring PoP
+
+on:
+  pull_request:
+    paths:
+      - "fixtures/authoring/**"
+      - "candidates/authoring-native/**"
+      - "candidates/authoring-review/**"
+      - "src/authoring.py"
+      - "src/authoring_review.py"
+      - "src/eng_graph.py"
+      - "tests/test_authoring.py"
+      - "tests/verify_authoring_native.py"
+      - "docs/07-real-markdown-authoring.md"
+      - ".github/workflows/authoring.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "fixtures/authoring/**"
+      - "candidates/authoring-native/**"
+      - "candidates/authoring-review/**"
+      - "src/authoring.py"
+      - "src/authoring_review.py"
+      - "src/eng_graph.py"
+      - "tests/test_authoring.py"
+      - "tests/verify_authoring_native.py"
+      - "docs/07-real-markdown-authoring.md"
+      - ".github/workflows/authoring.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned authoring and portal stack
+        run: |
+          python -m pip install \
+            -r candidates/authoring-native/requirements.txt \
+            -r candidates/material-portal/requirements.txt
+
+      - name: Verify compact and sidecar authoring
+        run: python -m unittest tests.test_authoring
+
+      - name: Export compact authoring graph
+        run: |
+          mkdir -p bld/authoring
+          python -m src.authoring extract \
+            fixtures/authoring/compact-metadata.md \
+            fixtures/authoring/reference.json \
+            bld/authoring/compact-graph.json \
+            --mode compact
+
+      - name: Export sidecar authoring graph
+        run: |
+          python -m src.authoring extract \
+            fixtures/authoring/sidecar-content.md \
+            fixtures/authoring/reference.json \
+            bld/authoring/sidecar-graph.json \
+            --mode sidecar \
+            --sidecar fixtures/authoring/sidecar-metadata.json
+
+      - name: Compare authoring semantics and cost
+        run: |
+          python -m src.authoring compare \
+            fixtures/authoring/compact-metadata.md \
+            fixtures/authoring/sidecar-content.md \
+            fixtures/authoring/sidecar-metadata.json \
+            fixtures/authoring/reference.json \
+            | tee bld/authoring/authoring-comparison.json
+
+      - name: Prepare native MyST control source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bld/authoring/native-source
+          cp candidates/authoring-native/conf.py bld/authoring/native-source/conf.py
+          cp candidates/authoring-native/schemas.json bld/authoring/native-source/schemas.json
+          cp fixtures/authoring/native-myst.md bld/authoring/native-source/index.md
+
+      - name: Build and validate native MyST control
+        run: |
+          sphinx-build -W --keep-going -b needs \
+            bld/authoring/native-source \
+            bld/authoring/native-needs
+
+      - name: Verify native MyST graph
+        run: |
+          python tests/verify_authoring_native.py \
+            bld/authoring/native-needs/needs.json
+
+      - name: Generate human review pages
+        run: |
+          python -m src.authoring_review \
+            fixtures/authoring/compact-metadata.md \
+            fixtures/authoring/sidecar-content.md \
+            fixtures/authoring/sidecar-metadata.json \
+            fixtures/authoring/native-myst.md \
+            bld/authoring/compact-graph.json \
+            bld/authoring/review-docs
+
+      - name: Build human review site
+        run: |
+          mkdocs build --strict \
+            --config-file candidates/authoring-review/mkdocs.yml
+
+      - name: Verify review site
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f bld/authoring/review-site/index.html
+          test -f bld/authoring/review-site/compact/index.html
+          test -f bld/authoring/review-site/sidecar/index.html
+          test -f bld/authoring/review-site/native-myst/index.html
+          test -f bld/authoring/review-site/graph/index.html
+          grep -q "19" bld/authoring/review-site/index.html
+          grep -q "SAD-TESTABILITY" bld/authoring/review-site/graph/index.html
+
+      - name: Write review summary
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          # Step 05 — Real Markdown authoring
+
+          The action validated three authoring shapes against a real event-timing slice.
+
+          ## Human review
+
+          Download artifact **authoring-review-output** and open `index.html`.
+
+          Review especially:
+          - Compact metadata: does the document still read normally?
+          - Sidecar: is moving relations away from the prose worth the synchronization risk?
+          - Native MyST: is wrapping engineering prose in directives acceptable in normal GitHub review?
+          - Graph: do generated backlinks make use cases easier to navigate?
+
+          The slice contains 19 engineering objects and includes SAD/SVP document sections as real upstream requirement sources.
+          EOF
+
+      - name: Stage review artifact
+        shell: bash
+        run: |
+          mkdir -p bld/authoring/review-output
+          cp -a bld/authoring/review-site/. bld/authoring/review-output/
+          cp bld/authoring/compact-graph.json bld/authoring/review-output/compact-graph.json
+          cp bld/authoring/sidecar-graph.json bld/authoring/review-output/sidecar-graph.json
+          cp bld/authoring/authoring-comparison.json bld/authoring/review-output/authoring-comparison.json
+          cp bld/authoring/native-needs/needs.json bld/authoring/review-output/native-needs.json
+
+      - name: Upload human review output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: authoring-review-output
+          path: bld/authoring/review-output/
+          if-no-files-found: error
+          retention-days: 14
