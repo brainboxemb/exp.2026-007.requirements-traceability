@@ -1,0 +1,154 @@
+name: Clickable real architecture PoP
+
+on:
+  pull_request:
+    paths:
+      - "fixtures/navigation/**"
+      - "candidates/navigation-review/**"
+      - "src/navigation.py"
+      - "src/authoring.py"
+      - "src/eng_graph.py"
+      - "tests/test_navigation.py"
+      - "docs/08-clickable-real-architecture.md"
+      - ".github/workflows/navigation.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "fixtures/navigation/**"
+      - "candidates/navigation-review/**"
+      - "src/navigation.py"
+      - "src/authoring.py"
+      - "src/eng_graph.py"
+      - "tests/test_navigation.py"
+      - "docs/08-clickable-real-architecture.md"
+      - ".github/workflows/navigation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned review stack
+        run: |
+          python -m pip install -r candidates/material-portal/requirements.txt
+
+      - name: Verify navigation model
+        run: python -m unittest tests.test_navigation
+
+      - name: Generate clickable real-architecture review
+        run: |
+          python -m src.navigation bld/navigation-review
+
+      - name: Verify generated review
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f bld/navigation-review/index.html
+          test -f bld/navigation-review/navigation-model.json
+          test -f bld/navigation-review/assets/navigation.css
+          test -f bld/navigation-review/assets/navigation.js
+          grep -q 'data-engineering-id="TimingNode"' bld/navigation-review/index.html
+          grep -q 'data-engineering-id="CommandHandler"' bld/navigation-review/index.html
+          grep -q 'UC-001' bld/navigation-review/navigation-model.json
+          grep -q 'UC-014' bld/navigation-review/navigation-model.json
+
+      - name: Capture human review screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bld/navigation-review/review
+
+          python -m http.server 8765 \
+            --bind 127.0.0.1 \
+            --directory bld/navigation-review \
+            > bld/navigation-review/review/browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          python - <<'PY'
+          import time
+          import urllib.request
+
+          url = "http://127.0.0.1:8765/?object=TimingNode"
+          for _ in range(20):
+              try:
+                  urllib.request.urlopen(url, timeout=1).read(1)
+                  break
+              except Exception:
+                  time.sleep(0.25)
+          else:
+              raise SystemExit("navigation review site did not become ready")
+          PY
+
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$chrome" ]; then
+            echo "No Chrome/Chromium executable available on runner"
+            exit 1
+          fi
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2500 \
+            --window-size=1800,1100 \
+            --screenshot=bld/navigation-review/review/TimingNode.png \
+            "http://127.0.0.1:8765/?object=TimingNode"
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2500 \
+            --window-size=1800,1100 \
+            --screenshot=bld/navigation-review/review/UC-001.png \
+            "http://127.0.0.1:8765/?object=UC-001"
+
+      - name: Write review summary
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          # Step 06 — Clickable real architecture
+
+          This run uses the real SI-01 layered architecture and real event-timing use-case prose.
+
+          ## What to review
+
+          Open artifact **navigation-review-output** and start at `index.html`.
+
+          Review:
+          - click TimingNode, CommandHandler, Conductor and RemoteApi in the diagram;
+          - from TimingNode, open UC-001 and UC-014;
+          - while UC-001 is open, check whether the highlighted architecture remains useful context;
+          - inspect requirement and verification chips without losing the narrative;
+          - check the authoritative-source links and note where current requirements still fall back to pinned line links;
+          - decide whether this feels materially more useful than reading the book alone.
+
+          Screenshots:
+          - `review/TimingNode.png`
+          - `review/UC-001.png`
+
+          The diagram uses `object_id` directly in the experiment copy of the real diagram YAML. No separate diagram-label lookup table is used.
+          EOF
+
+      - name: Upload human review output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: navigation-review-output
+          path: bld/navigation-review/
+          if-no-files-found: error
+          retention-days: 14
