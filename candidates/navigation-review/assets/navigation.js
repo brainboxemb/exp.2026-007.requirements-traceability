@@ -24,6 +24,11 @@
     return obj ? obj.type : "engineering object";
   }
 
+  function displayLabel(id) {
+    const title = titleFor(id);
+    return title === id ? id : id + " · " + title;
+  }
+
   function sourceRow(id) {
     const source = data.source_index[id];
     if (!source) return "";
@@ -40,7 +45,7 @@
     if (!ids || !ids.length) return '<p>None in this qualified slice.</p>';
     return '<div class="chips">' + ids.map(id =>
       '<button type="button" class="chip ' + cssClass + '" data-open-object="' + esc(id) + '">' +
-      esc(id) + " · " + esc(titleFor(id)) +
+      esc(displayLabel(id)) +
       "</button>"
     ).join("") + "</div>";
   }
@@ -58,7 +63,7 @@
   function header(id) {
     return '<div class="object-head">' +
       '<p class="object-type">' + esc(typeFor(id)) + "</p>" +
-      "<h2>" + esc(id) + " · " + esc(titleFor(id)) + "</h2>" +
+      "<h2>" + esc(displayLabel(id)) + "</h2>" +
       sourceRow(id) +
       "</div>";
   }
