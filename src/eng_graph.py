@@ -18,11 +18,13 @@ OBJECT_TYPES = {
     "interface-requirement",
     "architecture-element",
     "verification-case",
+    "document-section",
 }
 
 RELATION_RULES = {
     "source": {
         ("requirement", "use-case"),
+        ("requirement", "document-section"),
         ("interface-requirement", "requirement"),
     },
     "allocated_to": {
