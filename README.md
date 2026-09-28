@@ -3,13 +3,13 @@
 Experiment for interactive engineering documentation, traceability, architecture
 navigation and verification.
 
-Status: **active — real authoring and navigation qualification**
+Status: **active — clickable real architecture and richer use-case navigation**
 
 Cross-project coordination:
 [brainboxemb.meta Experiment 007](https://github.com/brainboxemb/brainboxemb.meta/tree/feature/issue-167-requirements-traceability-experiment/experiments/007-requirements-traceability)
 
 Current experiment issue:
-[#9 — Qualify real Markdown authoring and richer use-case navigation](https://github.com/brainboxemb/exp.2026-007.requirements-traceability/issues/9)
+[#15 — Qualify clickable real architecture and richer use-case navigation](https://github.com/brainboxemb/exp.2026-007.requirements-traceability/issues/15)
 
 Human review site:
 [Experiment 007 GitHub Pages](https://brainboxemb.github.io/exp.2026-007.requirements-traceability/)
@@ -70,9 +70,10 @@ the same information.
 6. [Sphinx-Needs comparison](docs/05-sphinx-needs-comparison.md)
 7. [Material portal/workspace](docs/06-material-portal.md)
 8. [Real Markdown authoring](docs/07-real-markdown-authoring.md)
-9. qualify clickable real architecture/use-case navigation and the reusable
-   production owner boundary;
-10. hand production mechanisms to the proper owner only after the experiment
+9. [Clickable real architecture and richer use-case navigation](docs/08-clickable-real-architecture.md)
+10. decide whether the experiment has enough evidence for a production-adoption
+    proposal or needs one final bounded PoP;
+11. hand production mechanisms to the proper owner only after the experiment
     supports that decision.
 
 ## Ownership

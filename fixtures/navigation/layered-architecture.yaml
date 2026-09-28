@@ -1,0 +1,272 @@
+diagram:
+  id: layered-architecture
+  title: Figure SI01-01 — SI-01 layered architecture
+  width: 1540
+  height: 1375
+  description: Working responsibility view of the reusable framework and executable application.
+  note: Selected arrows show principal relationships only; high-level arrows may terminate on a layer boundary when component-level ownership is intentionally deferred.
+
+groups:
+- id: presentation-layer
+  label: Presentation / external interfaces
+  kind: layer-presentation
+  layout: {x: 120, y: 85, w: 1120, h: 230}
+- id: application-layer
+  label: Application layer
+  kind: layer-application
+  layout: {x: 120, y: 345, w: 1120, h: 155}
+- id: domain-layer
+  label: Domain layer
+  kind: layer-domain
+  layout: {x: 120, y: 530, w: 1120, h: 360}
+- id: timing-node-aggregate
+  label: "TimingNode (1..N)"
+  kind: model
+  notation: component
+  layout: {x: 145, y: 570, w: 820, h: 310}
+- id: io-layer
+  label: I/O
+  kind: layer-infrastructure
+  layout: {x: 120, y: 920, w: 1120, h: 240}
+- id: platform-layer
+  label: Platform abstractions / execution environment
+  kind: layer-platform
+  layout: {x: 120, y: 1190, w: 1120, h: 100}
+- id: crosscutting-layer
+  label: Cross-cutting
+  kind: layer-crosscutting
+  layout: {x: 1270, y: 85, w: 230, h: 1205}
+
+nodes:
+- id: timing-node-root
+  object_id: TimingNode
+  group: timing-node-aggregate
+  label: "TimingNode"
+  items:
+    - TimingNodeID
+    - LocationID
+    - State
+  kind: model
+  notation: class
+  layout: {x: 165, y: 610, w: 245, h: 155}
+
+- id: local-console
+  group: presentation-layer
+  label: "Console"
+  subtitle: "local text interface"
+  kind: presentation
+  notation: component
+  layout: {x: 145, y: 125, w: 200, h: 65}
+- id: remote-shell
+  group: presentation-layer
+  label: "RemoteShell"
+  subtitle: "remote text interface"
+  kind: presentation
+  notation: component
+  layout: {x: 365, y: 125, w: 220, h: 65}
+- id: web-interface
+  group: presentation-layer
+  label: "Web"
+  subtitle: "browser-facing UI"
+  kind: presentation
+  notation: component
+  layout: {x: 605, y: 125, w: 200, h: 65}
+- id: remote-api
+  object_id: RemoteApi
+  group: presentation-layer
+  label: "RemoteApi"
+  subtitle: "HTTP + WebSocket • tools / test / control"
+  kind: presentation
+  notation: component
+  layout: {x: 825, y: 125, w: 380, h: 65}
+- id: shared-terminal
+  group: presentation-layer
+  label: "SharedTerminalHandler"
+  subtitle: "command parsing • terminal session behaviour"
+  kind: presentation
+  notation: component
+  layout: {x: 145, y: 220, w: 440, h: 60}
+
+- id: application-conductor
+  object_id: Conductor
+  group: application-layer
+  label: "Conductor"
+  subtitle: "lifecycle / application-wide coordination"
+  kind: application
+  notation: component
+  layout: {x: 250, y: 390, w: 360, h: 75}
+- id: command-handler
+  object_id: CommandHandler
+  group: application-layer
+  label: "CommandHandler"
+  subtitle: "presentation commands / queries"
+  kind: application
+  notation: component
+  layout: {x: 750, y: 390, w: 360, h: 75}
+
+- id: message-handler
+  group: timing-node-aggregate
+  label: "MessageHandler"
+  subtitle: "addressed backend message entry point"
+  kind: service
+  notation: component
+  layout: {x: 430, y: 610, w: 245, h: 70}
+
+- id: tag-processor
+  group: timing-node-aggregate
+  label: "TagProcessor"
+  subtitle: "RFID/tag processing"
+  kind: service
+  notation: component
+  layout: {x: 695, y: 610, w: 245, h: 70}
+- id: stage-start-times
+  group: timing-node-aggregate
+  label: "StageStartTimes"
+  subtitle: "start-time reference"
+  kind: service
+  notation: component
+  layout: {x: 430, y: 695, w: 245, h: 70}
+- id: timing-node-journal
+  group: timing-node-aggregate
+  label: "Journal"
+  subtitle: "registrations • sequence/persistence"
+  kind: service
+  notation: component
+  layout: {x: 695, y: 695, w: 245, h: 70}
+- id: next-up-teams
+  group: timing-node-aggregate
+  label: "NextUpTeams"
+  subtitle: "teams expected next"
+  kind: service
+  notation: component
+  layout: {x: 165, y: 780, w: 245, h: 70}
+- id: race-data
+  group: timing-node-aggregate
+  label: "RaceData"
+  subtitle: "participant/team/tag reference"
+  kind: service
+  notation: component
+  layout: {x: 430, y: 780, w: 245, h: 70}
+- id: stage-timing
+  group: timing-node-aggregate
+  label: "StageTiming"
+  subtitle: "running times + ranking"
+  kind: service
+  notation: component
+  layout: {x: 695, y: 780, w: 245, h: 70}
+
+- id: system-status-domain
+  group: domain-layer
+  label: "SystemStatus"
+  subtitle: "application-wide status/health"
+  kind: service
+  notation: component
+  layout: {x: 995, y: 655, w: 210, h: 85}
+
+- id: storage-io
+  group: io-layer
+  label: "Storage"
+  items:
+    - "file / DB"
+    - "backup / restore"
+  kind: storage
+  notation: packaging-component
+  layout: {x: 145, y: 955, w: 220, h: 170}
+- id: devices-io
+  group: io-layer
+  label: "Devices"
+  items:
+    - label: "AntennaManager"
+      items:
+        - label: "Antenna (0..N)"
+          items:
+            - Vendor1Antenna
+    - label: Display
+      items:
+        - DisplayRev1Can
+        - DisplayRev2Wifi
+    - label: Keypad
+      items:
+        - KeypadRev1Can
+  kind: integration
+  notation: packaging-component
+  layout: {x: 385, y: 955, w: 280, h: 170}
+- id: messaging-io
+  group: io-layer
+  label: "Messaging"
+  items:
+    - label: "BackendGateway"
+      items:
+        - label: "Connector (1..N)"
+          items:
+            - RabbitMqConnector
+  kind: integration
+  notation: packaging-component
+  layout: {x: 685, y: 955, w: 300, h: 170}
+- id: device-network-io
+  group: io-layer
+  label: "DeviceNetworks"
+  items:
+    - CanNetworkController
+    - NetworkDeviceService
+  kind: integration
+  notation: packaging-component
+  layout: {x: 1005, y: 955, w: 215, h: 170}
+
+- id: platform-primitives
+  group: platform-layer
+  label: Clock • filesystem • executors • process/network/OS primitives
+  kind: platform
+  layout: {x: 240, y: 1220, w: 880, h: 45}
+
+- id: crosscutting-concerns
+  group: crosscutting-layer
+  label: "Logging\n\nConfiguration\n\nDiagnostics\n\nBuild / version identity"
+  kind: crosscutting
+  layout: {x: 1300, y: 165, w: 170, h: 235}
+- id: boundary-note
+  group: crosscutting-layer
+  label: "Responsibility view only\n≠ Maven artifact split"
+  kind: crosscutting
+  layout: {x: 1300, y: 1190, w: 170, h: 70}
+
+edges:
+- from: local-console
+  to: shared-terminal
+  from_anchor: {side: bottom, position: 0.50}
+  to_anchor: {side: top, position: 0.2272727273}
+
+- from: remote-shell
+  to: shared-terminal
+  from_anchor: {side: bottom, position: 0.50}
+  to_anchor: {side: top, position: 0.75}
+
+- from: shared-terminal
+  to: command-handler
+  from_anchor: {side: bottom, position: 0.50}
+  to_anchor: {side: top, position: 0.18}
+
+- from: web-interface
+  to: command-handler
+  from_anchor: {side: bottom, position: 0.50}
+  to_anchor: {side: top, position: 0.50}
+
+- from: remote-api
+  to: command-handler
+  from_anchor: {side: bottom, position: 0.50}
+  to_anchor: {side: top, position: 0.82}
+
+- from: command-handler
+  to: application-conductor
+  from_anchor: {side: left, position: 0.50}
+  to_anchor: {side: right, position: 0.50}
+
+- from: application-conductor
+  to: domain-layer
+  from_anchor: {side: bottom, position: 0.35}
+  to_anchor: {side: top, position: 0.35}
+
+- from: command-handler
+  to: domain-layer
+  from_anchor: {side: bottom, position: 0.50}
+  to_anchor: {side: top, position: 0.65}
