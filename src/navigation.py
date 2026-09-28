@@ -422,9 +422,9 @@ def generate_site(
           <p>Real event-timing layered architecture at <code>{html.escape(model['reference']['source_revision'][:12])}</code></p>
         </div>
         <div class="zoom-controls" aria-label="Diagram zoom">
-          <button type="button" data-zoom="0.78">Fit</button>
-          <button type="button" data-zoom="1">100%</button>
-          <button type="button" data-zoom="1.25">125%</button>
+          <button type="button" data-zoom="fit">Fit</button>
+          <button type="button" data-zoom="100">100%</button>
+          <button type="button" data-zoom="125">125%</button>
         </div>
       </div>
       <div class="diagram-scroll">
@@ -439,7 +439,7 @@ def generate_site(
       </div>
     </aside>
   </main>
-  <script id="navigation-data" type="application/json">{html.escape(json.dumps(model))}</script>
+  <script id="navigation-data" type="application/json">{json.dumps(model).replace("</", "<\\/")}</script>
   <script src="assets/navigation.js"></script>
 </body>
 </html>
