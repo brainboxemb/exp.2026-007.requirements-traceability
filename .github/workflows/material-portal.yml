@@ -1,0 +1,120 @@
+name: Material portal PoP
+
+on:
+  pull_request:
+    paths:
+      - "candidates/material-portal/**"
+      - "candidates/sphinx-needs/**"
+      - "src/portal.py"
+      - "tests/verify_material_portal.py"
+      - "docs/06-material-portal.md"
+      - ".github/workflows/material-portal.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "candidates/material-portal/**"
+      - "candidates/sphinx-needs/**"
+      - "src/portal.py"
+      - "tests/verify_material_portal.py"
+      - "docs/06-material-portal.md"
+      - ".github/workflows/material-portal.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned documentation stack
+        run: |
+          python -m pip install             -r candidates/sphinx-needs/requirements.txt             -r candidates/material-portal/requirements.txt
+
+      - name: Export validated engineering graph
+        run: |
+          sphinx-build -W --keep-going -b needs             candidates/sphinx-needs/source             bld/material-portal/sphinx
+
+      - name: Generate portal source
+        run: |
+          python -m src.portal generate             bld/material-portal/sphinx/needs.json             candidates/material-portal             bld/material-portal/docs
+
+      - name: Build static Material portal
+        run: |
+          mkdocs build --strict             --config-file candidates/material-portal/mkdocs.yml
+
+      - name: Verify portal output
+        run: python tests/verify_material_portal.py bld/material-portal
+
+      - name: Exercise workspace in a real browser
+        shell: bash
+        run: |
+          python -m http.server 8765 \
+            --bind 127.0.0.1 \
+            --directory bld/material-portal/site \
+            > bld/material-portal/browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          python - <<'PY'
+          import time
+          import urllib.request
+
+          url = "http://127.0.0.1:8765/explorer/"
+          for _ in range(20):
+              try:
+                  urllib.request.urlopen(url, timeout=1).read(1)
+                  break
+              except Exception:
+                  time.sleep(0.25)
+          else:
+              raise SystemExit("portal preview server did not become ready")
+          PY
+
+          chrome="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$chrome" ]; then
+            echo "No Chrome/Chromium executable available on runner"
+            exit 1
+          fi
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2000 \
+            --dump-dom \
+            "http://127.0.0.1:8765/explorer/?object=TimingNode" \
+            > bld/material-portal/browser-explorer.html
+
+          grep -q '<code>TimingNode</code>' bld/material-portal/browser-explorer.html
+          grep -q 'One-hop context' bld/material-portal/browser-explorer.html
+          grep -q 'Open object page' bld/material-portal/browser-explorer.html
+
+          "$chrome" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=2000 \
+            --window-size=1600,1000 \
+            --screenshot=bld/material-portal/explorer-TimingNode.png \
+            "http://127.0.0.1:8765/explorer/?object=TimingNode"
+
+      - name: Capture installed dependency set
+        run: python -m pip freeze > bld/material-portal/pip-freeze.txt
+
+      - name: Upload portal evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: material-portal-evidence
+          path: bld/material-portal/
+          if-no-files-found: error

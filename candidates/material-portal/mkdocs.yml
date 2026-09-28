@@ -1,0 +1,46 @@
+site_name: Experiment 007 Engineering Portal
+site_description: Interactive engineering documentation and traceability PoP
+site_url: https://brainboxemb.github.io/exp.2026-007.requirements-traceability/
+repo_url: https://github.com/brainboxemb/exp.2026-007.requirements-traceability
+repo_name: brainboxemb/exp.2026-007.requirements-traceability
+
+docs_dir: ../../bld/material-portal/docs
+site_dir: ../../bld/material-portal/site
+strict: true
+
+nav:
+  - Portal: index.md
+  - Architecture book: book.md
+  - Engineering explorer: explorer.md
+  - Objects:
+      - Engineering object index: objects/index.md
+
+not_in_nav: |
+  objects/*.md
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.preview
+    - navigation.path
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+
+extra_javascript:
+  - assets/javascripts/explorer.js
+
+extra_css:
+  - assets/stylesheets/explorer.css
