@@ -1,0 +1,178 @@
+name: Authoring v2 requalification
+
+on:
+  pull_request:
+    paths:
+      - "fixtures/authoring-v2/**"
+      - "candidates/authoring-native-v2/**"
+      - "src/authoring_v2.py"
+      - "src/authoring_v2_review.py"
+      - "docs/09-authoring-requalification.md"
+      - ".github/workflows/authoring-v2.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "fixtures/authoring-v2/**"
+      - "candidates/authoring-native-v2/**"
+      - "src/authoring_v2.py"
+      - "src/authoring_v2_review.py"
+      - "docs/09-authoring-requalification.md"
+      - ".github/workflows/authoring-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned MyST and Sphinx-Needs stack
+        run: |
+          python -m pip install -r candidates/authoring-native/requirements.txt
+
+      - name: Prepare native MyST source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p bld/authoring-v2/native-source
+          cp candidates/authoring-native-v2/conf.py bld/authoring-v2/native-source/conf.py
+          cp candidates/authoring-native-v2/schemas.json bld/authoring-v2/native-source/schemas.json
+          cp fixtures/authoring-v2/native-myst.md bld/authoring-v2/native-source/index.md
+
+      - name: Build native Needs graph
+        run: |
+          sphinx-build -W --keep-going -b needs \
+            bld/authoring-v2/native-source \
+            bld/authoring-v2/native-needs
+
+      - name: Build native reader view
+        run: |
+          sphinx-build -W --keep-going -b html \
+            bld/authoring-v2/native-source \
+            bld/authoring-v2/native-html
+
+      - name: Compare current compact and native semantics
+        run: |
+          python -m src.authoring_v2 \
+            fixtures/authoring-v2/current-compact.md \
+            fixtures/authoring-v2/current-diagram.yaml \
+            bld/authoring-v2/native-needs/needs.json \
+            fixtures/authoring-v2/native-myst.md \
+            bld/authoring-v2/comparison.json
+
+      - name: Prove unknown-link diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a bld/authoring-v2/native-source bld/authoring-v2/bad-link-source
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("bld/authoring-v2/bad-link-source/index.md")
+          text = path.read_text(encoding="utf-8")
+          old = ":derived_from: UC-001, UC-014"
+          new = ":derived_from: UC-001, UC-MISSING"
+          if old not in text:
+              raise SystemExit("bad-link mutation source not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+          if sphinx-build -W --keep-going -b needs \
+              bld/authoring-v2/bad-link-source \
+              bld/authoring-v2/bad-link-output \
+              > bld/authoring-v2/bad-link.log 2>&1; then
+            echo "expected unknown-link build to fail"
+            exit 1
+          fi
+          grep -Eq "UC-MISSING|dead link|unknown" bld/authoring-v2/bad-link.log
+
+      - name: Prove typed-link diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a bld/authoring-v2/native-source bld/authoring-v2/bad-type-source
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("bld/authoring-v2/bad-type-source/index.md")
+          text = path.read_text(encoding="utf-8")
+          old = ":satisfies: SI01-REQ-003, SI01-REQ-020, SI01-REQ-021"
+          new = ":satisfies: UC-001"
+          if old not in text:
+              raise SystemExit("bad-type mutation source not found")
+          path.write_text(text.replace(old, new, 1), encoding="utf-8")
+          PY
+          if sphinx-build -W --keep-going -b needs \
+              bld/authoring-v2/bad-type-source \
+              bld/authoring-v2/bad-type-output \
+              > bld/authoring-v2/bad-type.log 2>&1; then
+            echo "expected typed-link build to fail"
+            exit 1
+          fi
+          grep -Eq "satisfies|schema|UC-001" bld/authoring-v2/bad-type.log
+
+      - name: Generate human authoring review
+        run: |
+          python -m src.authoring_v2_review \
+            bld/authoring-v2/comparison.json \
+            fixtures/authoring-v2/current-compact.md \
+            fixtures/authoring-v2/native-myst.md \
+            bld/authoring-v2/native-html \
+            bld/authoring-v2/review
+
+      - name: Verify retained review
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f bld/authoring-v2/review/index.html
+          test -f bld/authoring-v2/review/native/index.html
+          test -f bld/authoring-v2/review/comparison.json
+          grep -q '"semantic_match": true' bld/authoring-v2/comparison.json
+          grep -q '"object_count": 17' bld/authoring-v2/comparison.json
+          grep -q '"relation_count": 34' bld/authoring-v2/comparison.json
+          grep -q 'Native MyST / Sphinx-Needs' bld/authoring-v2/review/index.html
+
+      - name: Write review summary
+        shell: bash
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          # Authoring v2 requalification
+
+          Compare the source an engineer actually maintains, not just the build result.
+
+          Download artifact **authoring-v2-review** and open `index.html`.
+
+          The qualification checks:
+          - current compact production source and native MyST normalize to the same 17 objects / 34 relations;
+          - representative inverse backlinks are generated by Sphinx-Needs;
+          - unknown targets fail;
+          - invalid relation source/target types fail;
+          - native MyST also has a normal Sphinx-rendered reader view.
+
+          This run does not select the winner automatically. Human review of the authoring trade-off is part of issue #20.
+          EOF
+
+      - name: Stage evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp bld/authoring-v2/native-needs/needs.json bld/authoring-v2/review/native-needs.json
+          cp bld/authoring-v2/bad-link.log bld/authoring-v2/review/bad-link.log
+          cp bld/authoring-v2/bad-type.log bld/authoring-v2/review/bad-type.log
+          cp fixtures/authoring-v2/current-diagram.yaml bld/authoring-v2/review/current-diagram.yaml
+
+      - name: Upload human review output
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: authoring-v2-review
+          path: bld/authoring-v2/review/
+          if-no-files-found: error
+          retention-days: 14

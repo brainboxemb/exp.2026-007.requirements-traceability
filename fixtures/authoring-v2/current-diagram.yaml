@@ -1,0 +1,31 @@
+diagram:
+  id: authoring-v2-current
+  title: Current architecture identity source
+  width: 900
+  height: 500
+
+groups: []
+
+nodes:
+  - id: timing-node
+    object_id: TimingNode
+    label: TimingNode
+    kind: component
+    layout: {x: 80, y: 150, w: 180, h: 60}
+  - id: command-handler
+    object_id: CommandHandler
+    label: CommandHandler
+    kind: service
+    layout: {x: 300, y: 150, w: 180, h: 60}
+  - id: conductor
+    object_id: Conductor
+    label: Conductor
+    kind: service
+    layout: {x: 520, y: 150, w: 180, h: 60}
+  - id: remote-api
+    object_id: RemoteApi
+    label: RemoteApi
+    kind: integration
+    layout: {x: 300, y: 280, w: 180, h: 60}
+
+edges: []

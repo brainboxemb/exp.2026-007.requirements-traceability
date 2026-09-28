@@ -3,7 +3,7 @@
 Experiment for interactive engineering documentation, traceability, architecture
 navigation and verification.
 
-Status: **complete — qualified experiment retained as review/regression evidence**
+Status: **complete — qualified experiment retained as review/regression evidence; authoring follow-up selects native MyST/Sphinx-Needs**
 
 Cross-project coordination:
 [brainboxemb.meta Experiment 007](https://github.com/brainboxemb/brainboxemb.meta/tree/feature/issue-167-requirements-traceability-experiment/experiments/007-requirements-traceability)
@@ -73,7 +73,10 @@ the same information.
 9. [Clickable real architecture and richer use-case navigation](docs/08-clickable-real-architecture.md)
 10. **qualified for production adoption** — retain this repository as evidence,
     review surface and regression lab;
-11. hand generic production mechanisms to their owning repositories through the
+11. [Authoring requalification](docs/09-authoring-requalification.md) — after the
+    real production canary, native MyST/Sphinx-Needs is selected for graph-exposed
+    engineering objects;
+12. hand generic production mechanisms to their owning repositories through the
     cross-project migration coordinated by `brainboxemb.meta`.
 
 ## Ownership
