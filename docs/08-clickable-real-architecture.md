@@ -286,25 +286,29 @@ The retained screenshots cover:
 - `TimingNode` selected in the real SI-01 diagram;
 - `UC-001` open while related architecture remains highlighted.
 
-The live Pages view is the authority for the remaining qualitative question:
+Human review on 28 September 2026 accepted the clickable real-architecture view
+as useful and worth continuing toward production adoption. No additional
+bounded UX PoP was requested.
 
-> At realistic diagram and narrative scale, is the two-pane interaction actually
-> clearer and more useful than navigating the book alone?
-
-That judgement is intentionally not converted into an automated pass/fail rule.
+The positive review specifically confirms the central Step-06 premise: the
+architecture can remain visible as useful context while navigating into richer
+engineering objects and real use-case narrative.
 
 ## Exit status
 
-Step 06 has enough technical evidence to propose a production mechanism for
-diagram identity.
+**Step 06 is accepted and Experiment 007 is qualified for production adoption.**
 
-It does **not** yet authorize production changes.
+The experiment has sufficient evidence for the next cross-project track:
 
-Before closing Experiment 007 or creating a production-adoption track:
+1. retain the experiment repository as evidence, human review surface and
+   regression lab;
+2. move generic diagram engineering-identity support to `tool.eng-docs`;
+3. define the smallest production authoring/graph extraction convention without
+   making native MyST the project source format;
+4. pilot the production mechanism in the event-timing documentation while
+   retaining the engineering book as a first-class output;
+5. keep project-specific requirements, use cases, architecture and verification
+   meaning in the project repository.
 
-1. review the live Step-06 interaction;
-2. decide whether the two-pane workspace remains the preferred interaction;
-3. decide whether the current graph/authoring/diagram evidence is sufficient to
-   hand generic work to `tool.eng-docs`;
-4. if the human review exposes a concrete usability gap, run one final bounded
-   PoP for that gap rather than opening another broad tool comparison.
+Production changes remain owned by the follow-on migration; this experiment does
+not directly modify those owners.
