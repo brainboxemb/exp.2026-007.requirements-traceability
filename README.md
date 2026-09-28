@@ -3,12 +3,12 @@
 Experiment for interactive engineering documentation, traceability, architecture
 navigation and verification.
 
-Status: **active — clickable real architecture and richer use-case navigation**
+Status: **complete — qualified experiment retained as review/regression evidence**
 
 Cross-project coordination:
 [brainboxemb.meta Experiment 007](https://github.com/brainboxemb/brainboxemb.meta/tree/feature/issue-167-requirements-traceability-experiment/experiments/007-requirements-traceability)
 
-Current experiment issue:
+Final experiment issue:
 [#15 — Qualify clickable real architecture and richer use-case navigation](https://github.com/brainboxemb/exp.2026-007.requirements-traceability/issues/15)
 
 Human review site:
@@ -71,10 +71,10 @@ the same information.
 7. [Material portal/workspace](docs/06-material-portal.md)
 8. [Real Markdown authoring](docs/07-real-markdown-authoring.md)
 9. [Clickable real architecture and richer use-case navigation](docs/08-clickable-real-architecture.md)
-10. decide whether the experiment has enough evidence for a production-adoption
-    proposal or needs one final bounded PoP;
-11. hand production mechanisms to the proper owner only after the experiment
-    supports that decision.
+10. **qualified for production adoption** — retain this repository as evidence,
+    review surface and regression lab;
+11. hand generic production mechanisms to their owning repositories through the
+    cross-project migration coordinated by `brainboxemb.meta`.
 
 ## Ownership
 
@@ -87,5 +87,7 @@ handoff decision.
 The event-timing coordination repository remains owner of its project meaning,
 requirements, architecture and verification content.
 
-A reusable production mechanism may later belong in `tool.eng-docs`, but that
-is a result to prove rather than an assumption of the experiment.
+The experiment has now qualified a production handoff. Generic diagram-identity
+and engineering-documentation mechanisms may move to `tool.eng-docs` only
+through the owning cross-project adoption track; project meaning remains in the
+consuming project repositories.
