@@ -1,0 +1,27 @@
+site_name: Experiment 007 — Real Markdown authoring
+site_description: Human review surface for Experiment 007 Step 05
+strict: true
+
+nav:
+  - Review: index.md
+  - Compact metadata: compact.md
+  - Sidecar document: sidecar.md
+  - Sidecar metadata: sidecar-metadata.md
+  - Native MyST: native-myst.md
+  - Engineering graph: graph.md
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.path
+    - navigation.sections
+    - navigation.top
+
+plugins:
+  - search
+
+markdown_extensions:
+  - attr_list
+  - tables
+  - fenced_code
