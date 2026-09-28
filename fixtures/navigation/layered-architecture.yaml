@@ -1,8 +1,8 @@
 diagram:
   id: layered-architecture
   title: Figure SI01-01 — SI-01 layered architecture
-  width: 1540
-  height: 1375
+  width: 1600
+  height: 1345
   description: Working responsibility view of the reusable framework and executable application.
   note: Selected arrows show principal relationships only; high-level arrows may terminate on a layer boundary when component-level ownership is intentionally deferred.
 
@@ -10,15 +10,26 @@ groups:
 - id: presentation-layer
   label: Presentation / external interfaces
   kind: layer-presentation
-  layout: {x: 120, y: 85, w: 1120, h: 230}
+  layout: {x: 120, y: 85, w: 1180, h: 230}
 - id: application-layer
   label: Application layer
   kind: layer-application
-  layout: {x: 120, y: 345, w: 1120, h: 155}
+  layout: {x: 120, y: 345, w: 1180, h: 155}
 - id: domain-layer
   label: Domain layer
   kind: layer-domain
-  layout: {x: 120, y: 530, w: 1120, h: 360}
+  layout: {x: 120, y: 530, w: 1180, h: 400}
+  # Domain keeps breathing room below TimingNode. The shallower cut-away starts
+  # earlier to keep the Domain/I/O relation visible without making Devices look
+  # deeply embedded in Domain.
+  outline:
+    points:
+      - {x: 0.0, y: 0.0}
+      - {x: 1.0, y: 0.0}
+      - {x: 1.0, y: 0.775}
+      - {x: 0.7203390, y: 0.775}
+      - {x: 0.6694915, y: 1.0}
+      - {x: 0.0, y: 1.0}
 - id: timing-node-aggregate
   label: "TimingNode (1..N)"
   kind: model
@@ -27,15 +38,26 @@ groups:
 - id: io-layer
   label: I/O
   kind: layer-infrastructure
-  layout: {x: 120, y: 920, w: 1120, h: 240}
+  layout: {x: 120, y: 870, w: 1180, h: 260}
+  label_offset: {x: 0, y: 86}
+  # The shallower right shoulder remains part of I/O itself. It starts further
+  # left and follows Domain with a constant visible gap.
+  outline:
+    points:
+      - {x: 0.0, y: 0.3461538}
+      - {x: 0.6779661, y: 0.3461538}
+      - {x: 0.7288136, y: 0.0}
+      - {x: 1.0, y: 0.0}
+      - {x: 1.0, y: 1.0}
+      - {x: 0.0, y: 1.0}
 - id: platform-layer
   label: Platform abstractions / execution environment
   kind: layer-platform
-  layout: {x: 120, y: 1190, w: 1120, h: 100}
+  layout: {x: 120, y: 1160, w: 1180, h: 100}
 - id: crosscutting-layer
   label: Cross-cutting
   kind: layer-crosscutting
-  layout: {x: 1270, y: 85, w: 230, h: 1205}
+  layout: {x: 1330, y: 85, w: 230, h: 1175}
 
 nodes:
 - id: timing-node-root
@@ -66,8 +88,8 @@ nodes:
   layout: {x: 365, y: 125, w: 220, h: 65}
 - id: web-interface
   group: presentation-layer
-  label: "Web"
-  subtitle: "browser-facing UI"
+  label: "Web (1..N)"
+  subtitle: "per TimingNode • own port"
   kind: presentation
   notation: component
   layout: {x: 605, y: 125, w: 200, h: 65}
@@ -94,7 +116,7 @@ nodes:
   subtitle: "lifecycle / application-wide coordination"
   kind: application
   notation: component
-  layout: {x: 250, y: 390, w: 360, h: 75}
+  layout: {x: 165, y: 390, w: 280, h: 75}
 - id: command-handler
   object_id: CommandHandler
   group: application-layer
@@ -102,12 +124,19 @@ nodes:
   subtitle: "presentation commands / queries"
   kind: application
   notation: component
-  layout: {x: 750, y: 390, w: 360, h: 75}
+  layout: {x: 465, y: 390, w: 310, h: 75}
+- id: backend-message-router
+  group: application-layer
+  label: "BackendMessageRouter"
+  subtitle: "backend target resolution / routing"
+  kind: application
+  notation: component
+  layout: {x: 795, y: 390, w: 405, h: 75}
 
-- id: message-handler
+- id: backend-message-port
   group: timing-node-aggregate
-  label: "MessageHandler"
-  subtitle: "addressed backend message entry point"
+  label: "BackendMessagePort"
+  subtitle: "inbound / outbound backend messages"
   kind: service
   notation: component
   layout: {x: 430, y: 610, w: 245, h: 70}
@@ -161,7 +190,7 @@ nodes:
   subtitle: "application-wide status/health"
   kind: service
   notation: component
-  layout: {x: 995, y: 655, w: 210, h: 85}
+  layout: {x: 1000, y: 655, w: 220, h: 85}
 
 - id: storage-io
   group: io-layer
@@ -171,7 +200,7 @@ nodes:
     - "backup / restore"
   kind: storage
   notation: packaging-component
-  layout: {x: 145, y: 955, w: 220, h: 170}
+  layout: {x: 145, y: 990, w: 200, h: 95}
 - id: devices-io
   group: io-layer
   label: "Devices"
@@ -190,7 +219,18 @@ nodes:
         - KeypadRev1Can
   kind: integration
   notation: packaging-component
-  layout: {x: 385, y: 955, w: 280, h: 170}
+  # Aligned with SystemStatus above and fully enclosed by the shallower I/O
+  # shoulder.
+  layout: {x: 1000, y: 885, w: 220, h: 165}
+- id: device-network-io
+  group: io-layer
+  label: "DeviceNetworks"
+  items:
+    - CanNetworkController
+    - NetworkDeviceService
+  kind: integration
+  notation: packaging-component
+  layout: {x: 365, y: 990, w: 240, h: 95}
 - id: messaging-io
   group: io-layer
   label: "Messaging"
@@ -202,33 +242,31 @@ nodes:
             - RabbitMqConnector
   kind: integration
   notation: packaging-component
-  layout: {x: 685, y: 955, w: 300, h: 170}
-- id: device-network-io
-  group: io-layer
-  label: "DeviceNetworks"
-  items:
-    - CanNetworkController
-    - NetworkDeviceService
-  kind: integration
-  notation: packaging-component
-  layout: {x: 1005, y: 955, w: 215, h: 170}
+  layout: {x: 625, y: 990, w: 260, h: 105}
 
 - id: platform-primitives
   group: platform-layer
   label: Clock • filesystem • executors • process/network/OS primitives
   kind: platform
-  layout: {x: 240, y: 1220, w: 880, h: 45}
+  layout: {x: 270, y: 1190, w: 880, h: 45}
 
+- id: application-bootstrap
+  group: crosscutting-layer
+  label: "ApplicationBootstrap"
+  subtitle: "config • composition"
+  kind: crosscutting
+  notation: component
+  layout: {x: 1360, y: 165, w: 170, h: 80}
 - id: crosscutting-concerns
   group: crosscutting-layer
-  label: "Logging\n\nConfiguration\n\nDiagnostics\n\nBuild / version identity"
+  label: "Logging\n\nDiagnostics\n\nBuild / version identity"
   kind: crosscutting
-  layout: {x: 1300, y: 165, w: 170, h: 235}
+  layout: {x: 1360, y: 285, w: 170, h: 175}
 - id: boundary-note
   group: crosscutting-layer
   label: "Responsibility view only\n≠ Maven artifact split"
   kind: crosscutting
-  layout: {x: 1300, y: 1190, w: 170, h: 70}
+  layout: {x: 1360, y: 1180, w: 170, h: 70}
 
 edges:
 - from: local-console
@@ -260,6 +298,21 @@ edges:
   to: application-conductor
   from_anchor: {side: left, position: 0.50}
   to_anchor: {side: right, position: 0.50}
+
+- from: backend-message-router
+  to: domain-layer
+  from_anchor: {side: bottom, position: 0.50}
+  to_anchor: {side: top, position: 0.86}
+
+- from: backend-message-router
+  to: messaging-io
+  from_anchor: {side: right, position: 0.50}
+  to_anchor: {side: bottom, position: 0.50}
+  route:
+    - {x: 1315, y: 427.5}
+    - {x: 1315, y: 1120}
+    - {x: 755, y: 1120}
+    - {x: 755, y: 1095}
 
 - from: application-conductor
   to: domain-layer
