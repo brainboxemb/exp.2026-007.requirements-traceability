@@ -1,0 +1,12 @@
+{
+  "source_repository": "brainboxemb/2026-010-01.meta.event-timing-software",
+  "source_revision": "15f15c751d054f6a6af5e3478f5f9a85d046712c",
+  "source_documents": [
+    "docs/04-UC-system-use-cases.md",
+    "docs/20-01-SRD-timing-application-requirements.md",
+    "docs/31-01-SAD-timing-application-architecture.md",
+    "docs/40-01-IDD-application-control-status.md",
+    "docs/50-SVP-software-verification-plan.md"
+  ],
+  "purpose": "Pinned real-source authority for Experiment 007 issue #9 authoring fixtures."
+}
